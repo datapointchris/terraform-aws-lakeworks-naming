@@ -65,6 +65,11 @@ run "domain_scoped_names_omit_the_pipeline_segment" {
     condition     = output.alert_topic == "lakeworks-dev-platform-alerts"
     error_message = "Alert topics are per-domain."
   }
+
+  assert {
+    condition     = output.plan_role == "lakeworks-dev-platform-plan-role"
+    error_message = "A plan role is domain-scoped, so it resolves without a pipeline."
+  }
 }
 
 run "every_resource_carries_the_six_mandatory_tags" {

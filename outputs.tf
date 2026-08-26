@@ -78,6 +78,11 @@ output "execution_role" {
   value       = var.pipeline == "" ? null : "${local.scope}-execution-role"
 }
 
+output "plan_role" {
+  description = "The read-only identity CI assumes to plan against this account. Domain-scoped rather than pipeline-scoped: one repo plans one state, and a repo covers a domain."
+  value       = "${local.scope}-plan-role"
+}
+
 # ---------- messaging ----------
 
 output "alert_topic" {
