@@ -12,8 +12,7 @@ that receives the account id.
 
 ```hcl
 module "naming" {
-  source  = "datapointchris/naming/aws-lakeworks"
-  version = "~> 0.1"
+  source = "git::https://github.com/datapointchris/terraform-aws-lakeworks-naming.git?ref=v0.2.0"
 
   env        = "prod"
   domain     = "animal"
