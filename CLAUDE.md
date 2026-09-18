@@ -1,9 +1,7 @@
-# CLAUDE.md
+# terraform-aws-lakeworks-naming
 
-Guidance for Claude Code working in this repository.
-
-Read the README first. It carries the grammar, why hyphens and underscores are split the way they
-are, the two calling behaviours that surprise people, and the 64-character ceiling.
+The README carries the grammar, why hyphens and underscores are split the way they are, the two
+calling behaviors that surprise people, and the 64-character ceiling.
 
 ## This module is the naming standard, executed
 
