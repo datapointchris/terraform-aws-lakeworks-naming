@@ -5,14 +5,14 @@ terraform {
 # The single place a lakeworks name is constructed. Nothing else may concatenate one.
 #
 # Two separators, deliberately: hyphens for AWS resource names, underscores for anything SQL
-# touches. A hyphenated identifier forces backtick-quoting in Athena and Spark forever, and that
-# cost is paid on every query rather than once here.
+# touches. A hyphenated identifier has to be quoted in every query that names it: in backticks in
+# Spark and in Athena DDL, and in double quotes in an Athena SELECT.
 
 locals {
   prefix = "lakeworks-${var.env}"
 
-  # Pipeline-scoped when a pipeline is given, domain-scoped otherwise. Both stay under the 64-char
-  # ceiling that IAM roles impose, which is the tightest limit any of these names has to clear.
+  # Pipeline-scoped when a pipeline is given, domain-scoped otherwise. The 64-character ceiling on
+  # IAM role names is the tightest limit any name built on it has to clear.
   scope = var.pipeline == "" ? "${local.prefix}-${var.domain}" : "${local.prefix}-${var.domain}-${var.pipeline}"
 
   mandatory_tags = {
@@ -26,7 +26,8 @@ locals {
 }
 
 # An IAM role name over 64 characters is rejected by AWS at apply time, several minutes into a run.
-# Catching it at plan time costs nothing and is the difference between a fast failure and a slow one.
+# The pipeline validation alone cannot prevent it. A failed check is a plan warning, not a plan
+# failure, so it surfaces the overrun before the apply without stopping it.
 check "names_fit_aws_limits" {
   assert {
     condition     = length("${local.scope}-execution-role") <= 64

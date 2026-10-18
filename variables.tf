@@ -25,7 +25,7 @@ variable "pipeline" {
 
   validation {
     condition     = var.pipeline == "" || can(regex("^[a-z][a-z0-9-]{1,30}[a-z0-9]$", var.pipeline))
-    error_message = "pipeline must be lowercase alphanumeric with hyphens, 3-32 chars, not starting or ending with a hyphen."
+    error_message = "pipeline must be 3-32 lowercase letters, digits and hyphens, starting with a letter and ending with a letter or digit."
   }
 }
 
@@ -58,7 +58,7 @@ variable "managed_by" {
 }
 
 variable "account_id" {
-  description = "Account id, appended to globally-unique names. Passed in rather than read from a data source so the module stays testable with mock providers."
+  description = "Account id, appended to globally-unique names. Passed in rather than read from a data source, so the module needs no provider and its tests run without credentials."
   type        = string
 
   validation {

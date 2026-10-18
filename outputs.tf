@@ -79,7 +79,7 @@ output "execution_role" {
 }
 
 output "plan_role" {
-  description = "The read-only identity CI assumes to plan against this account. Domain-scoped rather than pipeline-scoped: one repo plans one state, and a repo covers a domain."
+  description = "The read-only identity CI assumes to plan against this account. Resolves without a pipeline, so a repo covering a whole domain gets a domain-scoped role. Given a pipeline, it takes the pipeline segment like the other roles."
   value       = "${local.scope}-plan-role"
 }
 

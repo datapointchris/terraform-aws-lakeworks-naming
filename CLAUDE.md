@@ -28,19 +28,27 @@ pins exist before assuming a new output is available everywhere.
 
 ## Never make an output blank
 
-Pipeline-scoped outputs return `null` when no pipeline is given, so a missing argument fails loudly
-at the consuming resource rather than producing `lakeworks-dev-animal--sfn`. Do not substitute an
-empty string to make an interpolation tidier.
+Pipeline-scoped outputs return `null` when no pipeline is given. Without the `null`, a call with no
+pipeline would return `lakeworks-dev-animal-sfn`, a plausible name every pipeline-less call in the
+domain would share. Do not substitute an empty string to make an interpolation tidier.
+
+A `null` stops a caller's plan only where the name is required or interpolated: `aws_glue_job`,
+`aws_lambda_function`, `aws_glue_catalog_database`, or any `"${...}"` string. Where the AWS provider
+treats the name as optional, as on `aws_iam_role` and `aws_sfn_state_machine`, a `null` is the same
+as no name and the provider generates one.
 
 The inverse holds for tags. An absent value is named — `unowned`, `none` — never blank. A blank tag
 is invisible in a cost report, and finding unowned resources is the entire point of the tag.
 
-## The ceiling is asserted, not documented
+## The ceiling is a plan warning, not a plan failure
 
-IAM rejects a role name over 64 characters several minutes into an apply. A `check` block asserts
-the generated role name fits so the failure lands at plan time. The longest name this grammar
-produces is 57 characters, which is seven of headroom — a longer pipeline slug or a new segment
-eats it fast.
+IAM rejects a role name over 64 characters several minutes into an apply. A `check` block measures
+`{scope}-execution-role`, the longest role name the grammar builds. Terraform reports a failed
+`check` as a warning, so the plan still succeeds and an apply goes on to IAM's rejection.
+
+The pipeline validation alone does not keep a role under the ceiling. The fixed segments of
+`lakeworks-prod-{domain}-{pipeline}-execution-role` take 31 characters, which leaves 33 for the
+domain and the pipeline together. A slug the validation accepts can overrun it.
 
 Any change that lengthens a name should be checked against that assertion rather than eyeballed.
 
@@ -50,9 +58,9 @@ Any change that lengthens a name should be checked against that assertion rather
 terraform test
 ```
 
-Eight cases, no provider, no AWS, sub-second. They assert the generated names, assert all six
-mandatory tags are present, and assert that an unknown domain, a third environment, a malformed
-pipeline slug and an attempt to override a mandatory tag each fail at plan time.
+No provider, no AWS, sub-second. The runs assert the generated names, assert all six mandatory tags
+are present, and assert that an unknown domain, a third environment, a malformed pipeline slug and
+an attempt to override a mandatory tag each fail at plan time.
 
 A new name or a new validation gets a case in the same change. The failure cases matter more than
 the success ones — a validation nothing tests is one that can be silently removed.

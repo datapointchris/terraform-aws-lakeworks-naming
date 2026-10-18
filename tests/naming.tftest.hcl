@@ -29,7 +29,7 @@ run "builds_pipeline_scoped_names" {
 
   assert {
     condition     = output.glue_database == "lakeworks_prod_animal_silver"
-    error_message = "Glue database must be underscored — a hyphen forces backtick-quoting in Athena and Spark."
+    error_message = "Glue database must be underscored — a hyphen forces quoting in every Athena and Spark query that names it."
   }
 
   assert {
@@ -68,7 +68,7 @@ run "domain_scoped_names_omit_the_pipeline_segment" {
 
   assert {
     condition     = output.plan_role == "lakeworks-dev-platform-plan-role"
-    error_message = "A plan role is domain-scoped, so it resolves without a pipeline."
+    error_message = "With no pipeline, the plan role must resolve at domain scope."
   }
 }
 
