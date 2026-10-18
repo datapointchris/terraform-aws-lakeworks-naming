@@ -162,3 +162,16 @@ run "rejects_an_attempt_to_override_a_mandatory_tag" {
 
   expect_failures = [var.extra_tags]
 }
+
+# The slug passes its own validation, and the execution role it produces is 65 characters.
+run "flags_a_valid_slug_that_overruns_the_iam_role_ceiling" {
+  command = plan
+
+  variables {
+    env      = "prod"
+    domain   = "animal"
+    pipeline = "observability-step-functions"
+  }
+
+  expect_failures = [check.names_fit_aws_limits]
+}

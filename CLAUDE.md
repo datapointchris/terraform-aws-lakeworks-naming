@@ -60,7 +60,8 @@ terraform test
 
 No provider, no AWS, sub-second. The runs assert the generated names, assert all six mandatory tags
 are present, and assert that an unknown domain, a third environment, a malformed pipeline slug and
-an attempt to override a mandatory tag each fail at plan time.
+an attempt to override a mandatory tag each fail at plan time. One run gives a valid slug long
+enough to overrun the role ceiling and asserts the `check` trips.
 
 A new name or a new validation gets a case in the same change. The failure cases matter more than
 the success ones — a validation nothing tests is one that can be silently removed.
