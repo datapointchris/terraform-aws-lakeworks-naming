@@ -159,9 +159,9 @@ Athena and Spark both make a hyphenated identifier need quoting in every query t
 cost would recur on every query, so the Glue database name takes underscores. The AWS resource
 names take hyphens.
 
-A bucket name ends in the account id because an S3 bucket name is unique across every AWS account. The
-lake and ops buckets are split so one can carry a strict policy and the other a permissive one.
-The ops bucket holds artifacts, logs, query results and plan JSON.
+A bucket name ends in the account id because an S3 bucket name is unique across every AWS
+account. The lake and ops buckets are split so one can carry a strict policy and the other a
+permissive one. The ops bucket holds artifacts, logs, query results and plan JSON.
 
 The two lake prefixes keep raw bytes apart from Iceberg tables. An ingestion job lands bytes under
 `raw/`. Only a Spark or PyIceberg commit writes under `warehouse/`.
@@ -232,9 +232,8 @@ Adding a domain or an environment, loosening a validation, or renaming an output
 caller may name things. It is not a local edit.
 
 The tests assert the generated names, the domain-scoped names and `null`s with no pipeline, and
-every mandatory tag.
-They also assert that each of these fails at plan: a domain never onboarded, a third environment, a
-malformed pipeline slug, and an extra tag that overrides a mandatory key.
+every mandatory tag. They also assert that each of these fails at plan: a domain never onboarded, a
+third environment, a malformed pipeline slug, and an extra tag that overrides a mandatory key.
 
-A change that adds a name or a validation adds its case to `tests/naming.tftest.hcl`. The failure
-cases matter most. A validation nothing tests can be removed without anyone noticing.
+A change that adds a name or a validation adds its case to `tests/naming.tftest.hcl`. A validation
+nothing tests can be removed without anyone noticing, so each one gets a failure case.
