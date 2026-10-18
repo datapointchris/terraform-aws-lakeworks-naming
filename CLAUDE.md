@@ -15,8 +15,10 @@ about what the platform is allowed to name things.
 ## Consumers pin by git tag
 
 ```hcl
-source = "git::https://github.com/datapointchris/terraform-aws-lakeworks-naming.git?ref=v0.2.0"
+source = "git::https://github.com/datapointchris/terraform-aws-lakeworks-naming.git?ref=<tag>"
 ```
+
+`git ls-remote --tags --refs` against that URL lists the tags a consumer can pin.
 
 The module is not published to the Terraform Registry, so a registry-style `source` plus `version`
 does not resolve. The repo is named `terraform-aws-lakeworks-naming` because the Registry parses
