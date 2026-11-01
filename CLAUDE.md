@@ -34,11 +34,6 @@ Pipeline-scoped outputs return `null` when no pipeline is given. Without the `nu
 pipeline would return `lakeworks-dev-animal-sfn`, a plausible name every pipeline-less call in the
 domain would share. Do not substitute an empty string to make an interpolation tidier.
 
-A `null` stops a caller's plan only where the name is required or interpolated: `aws_glue_job`,
-`aws_lambda_function`, `aws_glue_catalog_database`, or any `"${...}"` string. Where the AWS provider
-treats the name as optional, as on `aws_iam_role` and `aws_sfn_state_machine`, a `null` is the same
-as no name and the provider generates one.
-
 The inverse holds for tags. An absent value is named — `unowned`, `none` — never blank. A blank tag
 is invisible in a cost report, and finding unowned resources is the entire point of the tag.
 
@@ -47,10 +42,6 @@ is invisible in a cost report, and finding unowned resources is the entire point
 IAM rejects a role name over 64 characters several minutes into an apply. A `check` block measures
 `{scope}-execution-role`, the longest role name the grammar builds. Terraform reports a failed
 `check` as a warning, so the plan still succeeds and an apply goes on to IAM's rejection.
-
-The pipeline validation alone does not keep a role under the ceiling. The fixed segments of
-`lakeworks-prod-{domain}-{pipeline}-execution-role` take 31 characters, which leaves 33 for the
-domain and the pipeline together. A slug the validation accepts can overrun it.
 
 Any change that lengthens a name should be checked against that assertion rather than eyeballed.
 

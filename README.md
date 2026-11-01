@@ -63,8 +63,7 @@ terraform plan                        # every name and tag, under "Changes to Ou
 Change `domain` to `marketing` and `plan` fails. The error names every domain the module accepts.
 
 The module reads no data source, so the caller hands it the account id. A real caller passes
-`data.aws_caller_identity.current.account_id`, as in the next section. A data source would need the
-AWS provider. Without one, the module's tests run with no credentials.
+`data.aws_caller_identity.current.account_id`, as in the next section.
 
 ## A resource takes its name from an output, and its tags from the provider
 
@@ -135,8 +134,8 @@ fails at plan, and the error names every value the list accepts.
 The lists are closed on purpose. Adding an environment or a domain is a decision about the
 platform, made here, and never by one caller.
 
-`managed_by = "manual"` marks a resource made by hand. That is the drift signal the tag exists to
-carry.
+`managed_by = "manual"` marks a resource made by hand, so a query on `lakeworks:managed-by` counts
+the drift.
 
 ## The grammar puts hyphens in AWS names and underscores in anything SQL reads
 
@@ -152,12 +151,10 @@ lake prefix        raw/{domain}/{pipeline}, warehouse/{layer}/{domain}
 tag key            lakeworks:{dimension}                   env, domain, pipeline, layer, owner, managed-by
 ```
 
-Each output carries one of these. The plan in "Starting from scratch" prints every output beside
-its value.
+Each output carries one of these.
 
-Athena and Spark both make a hyphenated identifier need quoting in every query that names it. That
-cost would recur on every query, so the Glue database name takes underscores. The AWS resource
-names take hyphens.
+Athena and Spark need a hyphenated identifier quoted in every query that names it, so the Glue
+database name takes underscores. The AWS resource names take hyphens.
 
 A bucket name ends in the account id because an S3 bucket name is unique across every AWS
 account. The lake and ops buckets are split so one can carry a strict policy and the other a
@@ -225,7 +222,7 @@ still overrun it.
 ## A change here changes the standard for every caller
 
 ```bash
-terraform test   # every naming case, with no provider and no credentials, in under a second
+terraform test   # the runs in tests/naming.tftest.hcl, with no provider and no credentials, in under a second
 ```
 
 Adding a domain or an environment, loosening a validation, or renaming an output decides what every

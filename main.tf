@@ -11,8 +11,7 @@ terraform {
 locals {
   prefix = "lakeworks-${var.env}"
 
-  # Pipeline-scoped when a pipeline is given, domain-scoped otherwise. The 64-character ceiling on
-  # IAM role names is the tightest limit any name built on it has to clear.
+  # The 64-character IAM role ceiling is the tightest limit any name built on scope has to clear.
   scope = var.pipeline == "" ? "${local.prefix}-${var.domain}" : "${local.prefix}-${var.domain}-${var.pipeline}"
 
   mandatory_tags = {
