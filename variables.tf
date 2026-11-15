@@ -82,7 +82,12 @@ variable "extra_tags" {
   default     = {}
 
   validation {
-    condition     = length(setintersection(keys(var.extra_tags), keys(local.mandatory_tags))) == 0
-    error_message = "extra_tags must not override a mandatory lakeworks: tag. Change the corresponding variable instead."
+    condition = length(setintersection(keys(var.extra_tags), keys(local.mandatory_tags))) == 0
+    # A mandatory key lakeworks:<dimension> is set from the input of the same name, with hyphens
+    # as underscores, so the message derives the input from the key.
+    error_message = join(" ", [
+      for key in sort(setintersection(keys(var.extra_tags), keys(local.mandatory_tags))) :
+      "extra_tags sets ${key}, which the module sets from the ${replace(trimprefix(key, "lakeworks:"), "-", "_")} input. Remove it from extra_tags and set ${replace(trimprefix(key, "lakeworks:"), "-", "_")} instead."
+    ])
   }
 }
