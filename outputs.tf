@@ -27,55 +27,55 @@ output "ops_bucket" {
 
 output "raw_prefix" {
   description = "Where an ingestion job lands bytes. Iceberg never writes here."
-  value       = var.pipeline == "" ? null : "raw/${var.domain}/${var.pipeline}"
+  value       = local.has_pipeline ? "raw/${var.domain}/${var.pipeline}" : null
 }
 
 output "warehouse_prefix" {
   description = "Iceberg-managed. Nothing outside a Spark or PyIceberg commit writes under this."
-  value       = var.layer == "" ? null : "warehouse/${var.layer}/${var.domain}"
+  value       = local.has_layer ? "warehouse/${var.layer}/${var.domain}" : null
 }
 
 # ---------- catalog ----------
 
 output "glue_database" {
   description = "Underscored, because Athena and Spark both quote a hyphen forever."
-  value       = var.layer == "" ? null : "lakeworks_${var.env}_${var.domain}_${var.layer}"
+  value       = local.has_layer ? "lakeworks_${var.env}_${var.domain}_${var.layer}" : null
 }
 
 # ---------- compute and orchestration ----------
 
 output "glue_job" {
   description = "Glue job name."
-  value       = var.pipeline == "" ? null : "${local.scope}-job"
+  value       = local.has_pipeline ? "${local.scope}-job" : null
 }
 
 output "lambda_function" {
-  value = var.pipeline == "" ? null : "${local.scope}-fn"
+  value = local.has_pipeline ? "${local.scope}-fn" : null
 }
 
 output "state_machine" {
-  value = var.pipeline == "" ? null : "${local.scope}-sfn"
+  value = local.has_pipeline ? "${local.scope}-sfn" : null
 }
 
 output "schedule" {
-  value = var.pipeline == "" ? null : "${local.scope}-schedule"
+  value = local.has_pipeline ? "${local.scope}-schedule" : null
 }
 
 output "log_group" {
   description = "Log group. Retention is set by the consuming module and is never left unset — CloudWatch ingestion is a real line item."
-  value       = var.pipeline == "" ? null : "/lakeworks/${var.env}/${var.domain}/${var.pipeline}"
+  value       = local.has_pipeline ? "/lakeworks/${var.env}/${var.domain}/${var.pipeline}" : null
 }
 
 # ---------- identity ----------
 
 output "task_role" {
   description = "The identity the job's own code assumes."
-  value       = var.pipeline == "" ? null : "${local.scope}-task-role"
+  value       = local.has_pipeline ? "${local.scope}-task-role" : null
 }
 
 output "execution_role" {
   description = "The identity the service assumes to start the job, before your code runs."
-  value       = var.pipeline == "" ? null : "${local.scope}-execution-role"
+  value       = local.has_pipeline ? "${local.scope}-execution-role" : null
 }
 
 output "plan_role" {

@@ -11,14 +11,19 @@ terraform {
 locals {
   prefix = "lakeworks-${var.env}"
 
+  # Whether the call is pipeline- or layer-scoped. Every name and tag that depends on it reads
+  # these rather than testing the input again.
+  has_pipeline = var.pipeline != ""
+  has_layer    = var.layer != ""
+
   # The 64-character IAM role ceiling is the tightest limit any name built on scope has to clear.
-  scope = var.pipeline == "" ? "${local.prefix}-${var.domain}" : "${local.prefix}-${var.domain}-${var.pipeline}"
+  scope = local.has_pipeline ? "${local.prefix}-${var.domain}-${var.pipeline}" : "${local.prefix}-${var.domain}"
 
   mandatory_tags = {
     "lakeworks:env"        = var.env
     "lakeworks:domain"     = var.domain
-    "lakeworks:pipeline"   = var.pipeline == "" ? "none" : var.pipeline
-    "lakeworks:layer"      = var.layer == "" ? "none" : var.layer
+    "lakeworks:pipeline"   = local.has_pipeline ? var.pipeline : "none"
+    "lakeworks:layer"      = local.has_layer ? var.layer : "none"
     "lakeworks:owner"      = var.owner == "" ? "unowned" : var.owner
     "lakeworks:managed-by" = var.managed_by
   }
