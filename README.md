@@ -140,18 +140,27 @@ the drift.
 ## The grammar puts hyphens in AWS names and underscores in anything SQL reads
 
 ```text
-scope              lakeworks-{env}-{domain}-{pipeline}, or lakeworks-{env}-{domain} with no pipeline
-pipeline resource  {scope}-{suffix}                        job, fn, sfn, schedule
-role               {scope}-{purpose}-role                  task, execution, plan
-domain resource    lakeworks-{env}-{domain}-alerts
-bucket             lakeworks-{env}-{purpose}-{account_id}  lake, ops
-glue database      lakeworks_{env}_{domain}_{layer}
-log group          /lakeworks/{env}/{domain}/{pipeline}
-lake prefix        raw/{domain}/{pipeline}, warehouse/{layer}/{domain}
-tag key            lakeworks:{dimension}                   env, domain, pipeline, layer, owner, managed-by
+prefix            lakeworks-{env}
+scope             lakeworks-{env}-{domain}-{pipeline}, or lakeworks-{env}-{domain} with no pipeline
+glue_job          {scope}-job
+lambda_function   {scope}-fn
+state_machine     {scope}-sfn
+schedule          {scope}-schedule
+task_role         {scope}-task-role
+execution_role    {scope}-execution-role
+plan_role         {scope}-plan-role
+alert_topic       lakeworks-{env}-{domain}-alerts
+lake_bucket       lakeworks-{env}-lake-{account_id}
+ops_bucket        lakeworks-{env}-ops-{account_id}
+glue_database     lakeworks_{env}_{domain}_{layer}
+log_group         /lakeworks/{env}/{domain}/{pipeline}
+raw_prefix        raw/{domain}/{pipeline}
+warehouse_prefix  warehouse/{layer}/{domain}
+tags              keys lakeworks:env, lakeworks:domain, lakeworks:pipeline, lakeworks:layer,
+                  lakeworks:owner and lakeworks:managed-by
 ```
 
-Each output carries one of these.
+Each row is one output, by its name. Every `{…}` in a row is an input, or the `scope` output.
 
 Athena and Spark need a hyphenated identifier quoted in every query that names it, so the Glue
 database name takes underscores. The AWS resource names take hyphens.
