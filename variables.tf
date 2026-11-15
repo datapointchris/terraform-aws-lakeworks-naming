@@ -1,10 +1,19 @@
+# The closed lists. Each validation below checks its input against one of these and names the same
+# list in its error, so a value added here is accepted and named in one edit.
+locals {
+  accepted_envs       = ["dev", "prod"]
+  accepted_domains    = ["animal", "sensor", "clinical", "platform"]
+  accepted_layers     = ["raw", "bronze", "silver", "gold", "mart", "science"]
+  accepted_managed_by = ["terraform", "dectl", "manual"]
+}
+
 variable "env" {
   description = "Deployment environment. Drives every name and the mandatory env tag."
   type        = string
 
   validation {
-    condition     = contains(["dev", "prod"], var.env)
-    error_message = "env must be dev or prod. A third environment is a platform decision, not a pipeline one."
+    condition     = contains(local.accepted_envs, var.env)
+    error_message = "env must be one of: ${join(", ", local.accepted_envs)}. A third environment is a platform decision, not a pipeline one."
   }
 }
 
@@ -13,8 +22,8 @@ variable "domain" {
   type        = string
 
   validation {
-    condition     = contains(["animal", "sensor", "clinical", "platform"], var.domain)
-    error_message = "domain must be one of: animal, sensor, clinical, platform."
+    condition     = contains(local.accepted_domains, var.domain)
+    error_message = "domain must be one of: ${join(", ", local.accepted_domains)}."
   }
 }
 
@@ -35,8 +44,8 @@ variable "layer" {
   default     = ""
 
   validation {
-    condition     = var.layer == "" || contains(["raw", "bronze", "silver", "gold", "mart", "science"], var.layer)
-    error_message = "layer must be one of: raw, bronze, silver, gold, mart, science."
+    condition     = var.layer == "" || contains(local.accepted_layers, var.layer)
+    error_message = "layer must be one of: ${join(", ", local.accepted_layers)}."
   }
 }
 
@@ -52,8 +61,8 @@ variable "managed_by" {
   default     = "terraform"
 
   validation {
-    condition     = contains(["terraform", "dectl", "manual"], var.managed_by)
-    error_message = "managed_by must be terraform, dectl, or manual."
+    condition     = contains(local.accepted_managed_by, var.managed_by)
+    error_message = "managed_by must be one of: ${join(", ", local.accepted_managed_by)}."
   }
 }
 

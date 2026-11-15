@@ -128,8 +128,9 @@ provider. That is not a cycle, because `tags` never reads `account_id`. A provid
 | `managed_by` | `terraform` | a closed list of what created the resource | |
 | `extra_tags` | `{}` | any map that names no mandatory tag key | |
 
-Each closed list lives in that input's `validation` block in `variables.tf`. A value outside it
-fails at plan, and the error names every value the list accepts.
+Each closed list is an `accepted_*` local at the top of `variables.tf`. The input's `validation`
+block checks the value against it, so a value outside it fails at plan. The error is built from the
+same list, so it names every value the list accepts.
 
 The lists are closed on purpose. Adding an environment or a domain is a decision about the
 platform, made here, and never by one caller.
