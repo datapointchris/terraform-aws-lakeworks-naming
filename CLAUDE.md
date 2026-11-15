@@ -1,7 +1,8 @@
 # terraform-aws-lakeworks-naming
 
 The README carries the grammar, why hyphens and underscores are split the way they are, the two
-calling behaviors that surprise people, and the 64-character ceiling.
+calling behaviors that surprise people, and the 64-character ceiling. This file says how to work
+here and points at the README section for each mechanism.
 
 ## This module is the naming standard, executed
 
@@ -14,36 +15,22 @@ about what the platform is allowed to name things.
 
 ## Consumers pin by git tag
 
-```hcl
-source = "git::https://github.com/datapointchris/terraform-aws-lakeworks-naming.git?ref=<tag>"
-```
-
-`git ls-remote --tags --refs` against that URL lists the tags a consumer can pin.
-
-The module is not published to the Terraform Registry, so a registry-style `source` plus `version`
-does not resolve. The repo is named `terraform-aws-lakeworks-naming` because the Registry parses
-`terraform-{provider}-{name}` and only that form can ever be published — the name buys the option,
-it does not mean the option was taken.
-
-An output added in a new tag reaches a consumer only when that consumer bumps its pin. Check what
-pins exist before assuming a new output is available everywhere.
+README § "Install" gives the `source` string, the command that lists the tags, and why the module
+is not on the Registry. An output added in a new tag reaches a consumer only when that consumer
+bumps its pin, so check what pins exist before assuming a new output is available everywhere.
 
 ## Never make an output blank
 
-Pipeline-scoped outputs return `null` when no pipeline is given. Without the `null`, a call with no
-pipeline would return `lakeworks-dev-animal-sfn`, a plausible name every pipeline-less call in the
-domain would share. Do not substitute an empty string to make an interpolation tidier.
+Do not substitute an empty string for a `null` output to make an interpolation tidier, and never
+leave a tag value blank. README § "A pipeline output with no pipeline is `null`, never a name with
+a gap" and § "An absent tag value is named, never blank" give the reasons and which outputs are
+`null`.
 
-The inverse holds for tags. An absent value is named — `unowned`, `none` — never blank. A blank tag
-is invisible in a cost report, and finding unowned resources is the entire point of the tag.
+## Check a lengthened name against the ceiling
 
-## The ceiling is a plan warning, not a plan failure
-
-IAM rejects a role name over 64 characters several minutes into an apply. A `check` block measures
-`{scope}-execution-role`, the longest role name the grammar builds. Terraform reports a failed
-`check` as a warning, so the plan still succeeds and an apply goes on to IAM's rejection.
-
-Any change that lengthens a name should be checked against that assertion rather than eyeballed.
+Any change that lengthens a name should be checked against the `check` block in `main.tf` rather
+than eyeballed. README § "The 64-character role ceiling is a warning at plan, not a failure" says
+what it measures and why a failure only warns.
 
 ## Tests
 
@@ -51,10 +38,5 @@ Any change that lengthens a name should be checked against that assertion rather
 terraform test
 ```
 
-No provider, no AWS, sub-second. The runs assert the generated names, assert all six mandatory tags
-are present, and assert that an unknown domain, a third environment, a malformed pipeline slug and
-an attempt to override a mandatory tag each fail at plan time. One run gives a valid slug long
-enough to overrun the role ceiling and asserts the `check` trips.
-
-A new name or a new validation gets a case in the same change. The failure cases matter more than
-the success ones — a validation nothing tests is one that can be silently removed.
+README § "A change here changes the standard for every caller" lists what the runs assert. A new
+name or a new validation gets a case in the same change.
