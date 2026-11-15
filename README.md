@@ -117,16 +117,15 @@ provider. That is not a cycle, because `tags` never reads `account_id`. A provid
 
 ## Three inputs are required, and a value outside the standard fails the plan
 
-| Input | Default | Accepts | When empty |
-| --- | --- | --- | --- |
-| `env` | required | a closed list of environments | |
-| `domain` | required | a closed list of onboarded domains | |
-| `account_id` | required | exactly 12 digits | |
-| `pipeline` | `""` | 3 to 32 lowercase letters, digits and hyphens, starting with a letter and ending with a letter or digit | names are domain-scoped, pipeline outputs are `null`, the tag reads `none` |
-| `layer` | `""` | a closed list of lakehouse layers | layer outputs are `null`, the tag reads `none` |
-| `owner` | `""` | any team slug | the tag reads `unowned` |
-| `managed_by` | `terraform` | a closed list of what created the resource | |
-| `extra_tags` | `{}` | any map that names no mandatory tag key | |
+`env`, `domain` and `account_id` are required. The generated inputs table at the end of this page
+gives every input's default. Each input's `validation` block in `variables.tf` states what it
+accepts.
+
+An optional input left empty changes the names and tags this way:
+
+- `pipeline`: names are domain-scoped, pipeline outputs are `null`, and the tag reads `none`.
+- `layer`: layer outputs are `null`, and the tag reads `none`.
+- `owner`: the tag reads `unowned`.
 
 Each closed list is an `accepted_*` local at the top of `variables.tf`. The input's `validation`
 block checks the value against it, so a value outside it fails at plan. The error is built from the
@@ -241,3 +240,63 @@ slug long enough to overrun the role ceiling, and asserts that the check trips.
 
 A validation nothing tests can be removed without anyone noticing. So a change that adds a name or
 a validation adds its case to `tests/naming.tftest.hcl`.
+
+## Inputs and outputs are generated from the module's declarations
+
+terraform-docs writes this section from `variables.tf` and `outputs.tf` on every commit, and CI
+fails when it is out of date.
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+| ---- | ------- |
+| terraform | >= 1.9 |
+
+## Providers
+
+No providers.
+
+## Modules
+
+No modules.
+
+## Resources
+
+No resources.
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+| ---- | ----------- | ---- | ------- | :------: |
+| account\_id | Account id, appended to globally-unique names. Passed in rather than read from a data source, so the module needs no provider and its tests run without credentials. | `string` | n/a | yes |
+| domain | Tenant domain. A new domain is onboarded by the platform team, not declared ad hoc. | `string` | n/a | yes |
+| env | Deployment environment. Drives every name and the mandatory env tag. | `string` | n/a | yes |
+| extra\_tags | Additional tags merged over the mandatory set. Cannot override a mandatory key. | `map(string)` | `{}` | no |
+| layer | Lakehouse layer. Empty for resources that sit outside the layer model. | `string` | `""` | no |
+| managed\_by | What created this. `manual` is a drift signal that a scheduled query counts. | `string` | `"terraform"` | no |
+| owner | Owning team slug, surfaced as a tag so an unowned resource is visibly unowned. | `string` | `""` | no |
+| pipeline | Pipeline slug. Empty for domain- or platform-level resources that belong to no pipeline. | `string` | `""` | no |
+
+## Outputs
+
+| Name | Description |
+| ---- | ----------- |
+| alert\_topic | Per-domain, not per-pipeline. Sixteen SNS topics is sixteen subscriptions to maintain. |
+| execution\_role | The identity the service assumes to start the job, before your code runs. |
+| glue\_database | Underscored, because Athena and Spark both quote a hyphen forever. |
+| glue\_job | Glue job name. |
+| lake\_bucket | The lakehouse bucket. Account-suffixed because S3 names are globally unique. |
+| lambda\_function | n/a |
+| log\_group | Log group. Retention is set by the consuming module and is never left unset — CloudWatch ingestion is a real line item. |
+| ops\_bucket | Artifacts, logs, query results, plan JSON. Split from the lake so one policy can be strict and the other permissive. |
+| plan\_role | The read-only identity CI assumes to plan against this account. Resolves without a pipeline, so a repo covering a whole domain gets a domain-scoped role. Given a pipeline, it takes the pipeline segment like the other roles. |
+| prefix | Environment prefix, for names this module does not construct. |
+| raw\_prefix | Where an ingestion job lands bytes. Iceberg never writes here. |
+| schedule | n/a |
+| scope | Environment + domain + pipeline, the stem every resource name shares. |
+| state\_machine | n/a |
+| tags | The six mandatory tags plus any extras. Applied at the provider's default\_tags so a resource cannot forget them. |
+| task\_role | The identity the job's own code assumes. |
+| warehouse\_prefix | Iceberg-managed. Nothing outside a Spark or PyIceberg commit writes under this. |
+<!-- END_TF_DOCS -->
