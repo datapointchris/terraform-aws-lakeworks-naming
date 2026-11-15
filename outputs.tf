@@ -70,17 +70,17 @@ output "log_group" {
 
 output "task_role" {
   description = "The identity the job's own code assumes."
-  value       = local.has_pipeline ? "${local.scope}-task-role" : null
+  value       = lookup(local.role_names, "task", null)
 }
 
 output "execution_role" {
   description = "The identity the service assumes to start the job, before your code runs."
-  value       = local.has_pipeline ? "${local.scope}-execution-role" : null
+  value       = lookup(local.role_names, "execution", null)
 }
 
 output "plan_role" {
   description = "The read-only identity CI assumes to plan against this account. Resolves without a pipeline, so a repo covering a whole domain gets a domain-scoped role. Given a pipeline, it takes the pipeline segment like the other roles."
-  value       = "${local.scope}-plan-role"
+  value       = local.role_names["plan"]
 }
 
 # ---------- messaging ----------

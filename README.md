@@ -209,7 +209,8 @@ the way to change a mandatory tag is its input.
 ## The 64-character role ceiling is a warning at plan, not a failure
 
 IAM rejects a role name over 64 characters, several minutes into an apply. A `check` block in
-`main.tf` measures `{scope}-execution-role`, the longest role name the grammar builds.
+`main.tf` measures every role name the module builds, and the warning names each one over the
+ceiling. `{scope}-execution-role` is the longest, so it is the first to overrun.
 
 Terraform reports a failed `check` assertion as a warning. The plan still succeeds, and an apply
 goes on to IAM's rejection. Read the plan's warnings before applying a pipeline with a long slug.
