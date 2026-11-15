@@ -229,10 +229,15 @@ terraform test   # the runs in tests/naming.tftest.hcl, with no provider and no 
 Adding a domain or an environment, loosening a validation, or renaming an output decides what every
 caller may name things. It is not a local edit.
 
-The tests assert the generated names, the domain-scoped names and `null`s with no pipeline, and
-every mandatory tag. They also assert that each of these fails at plan: a domain never onboarded, a
-third environment, a malformed pipeline slug, and an extra tag that overrides a mandatory key. One
-run gives a valid slug long enough to overrun the role ceiling, and asserts that the check trips.
+The tests assert a sample of the names rather than every output. With a pipeline they check the
+Glue job, state machine, Glue database, lake bucket and warehouse prefix. With none they check the
+scope, the alert topic, the plan role and that `glue_job` is `null`. They also check that all six
+mandatory tags are present and that an absent owner and pipeline read `unowned` and `none`.
 
-A change that adds a name or a validation adds its case to `tests/naming.tftest.hcl`. A validation
-nothing tests can be removed without anyone noticing, so each one gets a failure case.
+These inputs each have a run asserting they fail at plan: a domain never onboarded, a third
+environment, a malformed pipeline slug, an extra tag that overrides a mandatory key, and an account
+id that is not 12 digits. `layer` and `managed_by` have no failure run. One more run gives a valid
+slug long enough to overrun the role ceiling, and asserts that the check trips.
+
+A validation nothing tests can be removed without anyone noticing. So a change that adds a name or
+a validation adds its case to `tests/naming.tftest.hcl`.
