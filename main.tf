@@ -18,6 +18,7 @@ locals {
   # The 64-character IAM role ceiling is the tightest limit any name built on scope has to clear.
   scope = local.has_pipeline ? "${local.prefix}-${var.domain}-${var.pipeline}" : "${local.prefix}-${var.domain}"
 
+  # Its keys are also the keys the extra_tags validation refuses.
   mandatory_tags = {
     "lakeworks:env"        = var.env
     "lakeworks:domain"     = var.domain

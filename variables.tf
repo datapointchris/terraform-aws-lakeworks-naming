@@ -82,10 +82,7 @@ variable "extra_tags" {
   default     = {}
 
   validation {
-    condition = length(setintersection(
-      keys(var.extra_tags),
-      ["lakeworks:env", "lakeworks:domain", "lakeworks:pipeline", "lakeworks:layer", "lakeworks:owner", "lakeworks:managed-by"]
-    )) == 0
+    condition     = length(setintersection(keys(var.extra_tags), keys(local.mandatory_tags))) == 0
     error_message = "extra_tags must not override a mandatory lakeworks: tag. Change the corresponding variable instead."
   }
 }
