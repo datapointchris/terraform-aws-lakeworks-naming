@@ -163,6 +163,18 @@ run "rejects_an_attempt_to_override_a_mandatory_tag" {
   expect_failures = [var.extra_tags]
 }
 
+run "rejects_an_account_id_that_is_not_twelve_digits" {
+  command = plan
+
+  variables {
+    env        = "dev"
+    domain     = "animal"
+    account_id = "12345"
+  }
+
+  expect_failures = [var.account_id]
+}
+
 # The slug passes its own validation, and the execution role it produces is 65 characters.
 run "flags_a_valid_slug_that_overruns_the_iam_role_ceiling" {
   command = plan
