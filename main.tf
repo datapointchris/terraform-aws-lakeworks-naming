@@ -4,9 +4,8 @@ terraform {
 
 # The single place a lakeworks name is constructed. Nothing else may concatenate one.
 #
-# Two separators, deliberately: hyphens for AWS resource names, underscores for anything SQL
-# touches. A hyphenated identifier has to be quoted in every query that names it: in backticks in
-# Spark and in Athena DDL, and in double quotes in an Athena SELECT.
+# AWS resource names take hyphens and anything SQL reads takes underscores. The README's grammar
+# section gives the reason, and the glue_database output is where the underscores are built.
 
 locals {
   prefix = "lakeworks-${var.env}"
